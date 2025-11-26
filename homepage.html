@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nanotechnology Unveiled | SciTech L13</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header id="main-header">
+        <div class="container header-flex">
+            <div class="logo">SCITECH LESSON 13</div>
+            <nav>
+                <ul id="main-nav-links">
+                    <li><a href="homepage.html">Home</a></li>
+                    <li><a href="#" class="nav-link active" data-target="outcomes">Outcomes</a></li>
+                    <li><a href="#" class="nav-link" data-target="whatis">Defining Terms</a></li>
+                    <li><a href="#" class="nav-link" data-target="nanoscale">Beginnings</a></li>
+                    <li><a href="#" class="nav-link" data-target="properties">Applications</a></li>
+                    <li><a href="#" class="nav-link" data-target="tools">Ethical Issues</a></li>
+                    <li><a href="#" class="nav-link" data-target="applications">Summary</a></li>
+                    <li><a href="#" class="nav-link" data-target="ending">End</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="content-display">
+        
+        <section id="outcomes" class="content-slide dark-bg active fade-in-slide">
+             <div class="module-content" id="module-outcomes"></div>
+             <button data-next="whatis" class="btn-neon next-slide-btn">Next Section <i class="fas fa-arrow-down"></i></button>
+        </section>
+
+        <section id="whatis" class="content-slide black-bg fade-in-slide">
+             <div class="module-content" id="module-whatis"></div>
+             <button data-next="nanoscale" class="btn-neon next-slide-btn">Next Section <i class="fas fa-arrow-down"></i></button>
+        </section>
+        
+        <section id="nanoscale" class="content-slide dark-bg fade-in-slide">
+             <div class="module-content" id="module-nanoscale"></div>
+             <button data-next="properties" class="btn-neon next-slide-btn">Next Section <i class="fas fa-arrow-down"></i></button>
+        </section>
+
+        <section id="properties" class="content-slide black-bg fade-in-slide">
+             <div class="module-content" id="module-properties"></div>
+             <button data-next="tools" class="btn-neon next-slide-btn">Next Section <i class="fas fa-arrow-down"></i></button>
+        </section>
+        
+        <section id="tools" class="content-slide dark-bg fade-in-slide">
+             <div class="module-content" id="module-tools"></div>
+             <button data-next="applications" class="btn-neon next-slide-btn">Next Section <i class="fas fa-arrow-down"></i></button>
+        </section>
+
+        <section id="applications" class="content-slide black-bg fade-in-slide">
+             <div class="module-content" id="module-applications"></div>
+             <button data-next="ending" class="btn-neon next-slide-btn">View Summary <i class="fas fa-arrow-down"></i></button>
+        </section>
+
+        <section id="ending" class="content-slide hero ending-slide fade-in-slide">
+            <div class="hero-overlay"></div>
+            <div class="content-box">
+                <div class="main-title-container"> 
+                    <h1 class="main-title ending-title">Thank You.</h1>
+                    <p class="tagline ending-subheading"><i>The End So Far...</i></p>
+                    <a href="homepage.html" class="btn-neon">Return to Home</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- CONTENT INJECTION SCRIPT ---
+        const contentMap = {
+            outcomes: 'outcomes-block',
+            whatis: 'whatis-block',
+            nanoscale: 'nanoscale-block',
+            properties: 'properties-block',
+            tools: 'tools-block',
+            applications: 'applications-block' 
+        };
+
+        async function fetchAndInjectContent() {
+            try {
+                const response = await fetch('nanotechnology_module.html');
+                if (!response.ok) throw new Error('Failed to load module content');
+                let htmlContent = await response.text();
+                
+                // GLOBAL REPLACE: REMOVE ALL BOLD MARKDOWN (**) FROM THE CONTENT
+                htmlContent = htmlContent.replace(/\*\*/g, ''); 
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, 'text/html');
+
+                for (const [slideId, blockId] of Object.entries(contentMap)) {
+                    const targetElement = document.getElementById(`module-${slideId}`);
+                    if (targetElement) {
+                        const contentBlock = doc.getElementById(blockId);
+                        if (contentBlock) {
+                            targetElement.innerHTML = contentBlock.innerHTML;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error injecting content:", error);
+                document.querySelectorAll('.module-content').forEach(el => {
+                    el.innerHTML = '<p style="color:red; text-align:center;">Error loading module content. Check console for details.</p>';
+                });
+            }
+        }
+        
+        // --- INTERACTIVE SLIDE NAVIGATION SCRIPT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndInjectContent(); // First, inject content
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const nextButtons = document.querySelectorAll('.next-slide-btn');
+            const contentSlides = document.querySelectorAll('.content-slide');
+            const mainHeader = document.getElementById('main-header');
+
+            function showSlide(targetId) {
+                // Deactivate all nav links and hide all slides
+                navLinks.forEach(link => link.classList.remove('active'));
+                contentSlides.forEach(slide => {
+                    slide.classList.remove('active', 'fade-in-active');
+                    slide.style.display = 'none'; // Hide completely
+                });
+
+                // Activate the target nav link
+                const activeLink = document.querySelector(`.nav-link[data-target="${targetId}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+
+                // Show the target slide with animation
+                const targetSlide = document.getElementById(targetId);
+                if (targetSlide) {
+                    targetSlide.style.display = 'flex'; // Display before adding active class
+                    // Force reflow
+                    void targetSlide.offsetWidth; 
+                    targetSlide.classList.add('active', 'fade-in-active');
+                }
+            }
+
+            // 1. Event Listeners for Nav Links
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.dataset.target) {
+                        e.preventDefault();
+                        showSlide(this.dataset.target);
+                    }
+                });
+            });
+
+            // 2. Event Listeners for Next Buttons
+            nextButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showSlide(this.dataset.next);
+                });
+            });
+
+            // Initial load: show the 'outcomes' slide
+            showSlide('outcomes');
+
+            // Header glow is permanently active in this fixed layout mode
+            mainHeader.classList.add('scrolled');
+        });
+    </script>
+</body>
+</html>

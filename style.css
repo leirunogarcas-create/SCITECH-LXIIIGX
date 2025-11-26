@@ -1,0 +1,641 @@
+/* --- 1. GLOBAL RESET & VARIABLES --- */
+:root {
+    --neon-cyan: #00f3ff;
+    --deep-black: #050505;
+    --dark-grey: #121212;
+    --text-white: #e0e0e0;
+    --light-grey: #a0a0a0;
+    --font-heading: 'Orbitron', sans-serif;
+    --font-body: 'Roboto', sans-serif;
+    --header-height: 80px; 
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body { 
+    height: 100%;
+    overflow: hidden; 
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--deep-black);
+    color: var(--text-white);
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon-cyan) var(--dark-grey);
+    position: relative; 
+}
+
+/* Background Noise/Static Effect */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.05);
+    opacity: 1; 
+    pointer-events: none;
+    z-index: 10;
+    
+    /* CONTINUOUS FLICKER ANIMATION (More aggressive) */
+    animation: flicker 1s steps(20, start) infinite; 
+}
+
+/* Flicker Keyframes (More aggressive opacity changes) */
+@keyframes flicker {
+    0% { opacity: 0.95; } 
+    5% { opacity: 1; }
+    10% { opacity: 0.90; } 
+    15% { opacity: 1; }
+    20% { opacity: 0.93; }
+    25% { opacity: 1; }
+    50% { opacity: 0.98; }
+    100% { opacity: 1; }
+}
+
+
+/* Fonts */
+h1, h2, h3, .logo, .btn-neon, .subsection-title {
+    font-family: var(--font-heading); 
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+a { text-decoration: none; color: inherit; transition: 0.3s ease-in-out; }
+ul { list-style: none; } 
+ol { list-style: none; }
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- 2. NAVIGATION & HEADER --- */
+
+/* INCREASED NEON PULSE KEYFRAMES (Brighter glow/shadow) */
+@keyframes neon-pulse {
+    0% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.4); } 
+    50% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.8), 0 0 30px rgba(0, 243, 255, 0.4); } 
+    100% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.4); }
+}
+
+header {
+    background-color: rgba(5, 5, 5, 0.9);
+    border-bottom: 1px solid #333;
+    height: calc(var(--header-height) + 5px); 
+    padding: 20px 0 0; 
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Progress Bar Styles */
+#progress-bar-container {
+    height: 5px;
+    width: 100%;
+    background-color: rgba(0, 243, 255, 0.1);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 1001;
+}
+
+#progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan);
+    transition: width 0.5s ease-in-out;
+}
+
+header.scrolled {
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+    border-color: var(--neon-cyan);
+    animation: neon-pulse 3s ease-in-out infinite; 
+}
+
+.header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--header-height); 
+}
+
+.logo { 
+    font-size: 1.5rem; 
+    font-weight: 700; 
+    color: white; 
+    text-shadow: 0 0 5px var(--neon-cyan);
+}
+
+nav ul li { 
+    font-size: 0.9rem; 
+    display: inline-block; 
+    margin-left: 30px; 
+}
+nav a { 
+    color: var(--light-grey);
+    padding: 5px 0;
+    position: relative;
+}
+nav a:hover, nav a.active { 
+    color: var(--neon-cyan); 
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 15px rgba(0, 243, 255, 0.3); 
+}
+
+/* Underline active/hover nav links with glow */
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 8px var(--neon-cyan);
+    transition: width 0.3s ease-out;
+}
+
+nav a:hover::after,
+nav a.active::after {
+    width: 100%;
+}
+
+
+/* --- 3. INTERACTIVE SLIDES (Presentation Mode - index.html) --- */
+
+/* Glitch Keyframes (More noticeable skew) */
+@keyframes subtle-glitch {
+    0% { transform: skewX(0deg); }
+    5% { transform: skewX(1deg); } 
+    10% { transform: skewX(-1deg); } 
+    15% { transform: skewX(0deg); }
+    100% { transform: skewX(0deg); }
+}
+
+/* Scan Line Animation Keyframes */
+@keyframes scan-line {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+
+#content-display {
+    height: 100vh; 
+    position: relative;
+    width: 100%;
+    overflow: hidden; 
+}
+
+/* Dynamic Scan Line Pseudo-element */
+#content-display::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--neon-cyan), transparent);
+    opacity: 0.2; /* Subtle opacity */
+    z-index: 99;
+    top: calc(var(--header-height) + 5px); /* Start below the header */
+    animation: scan-line 5s linear infinite; /* Slow, continuous sweep */
+}
+
+
+.content-slide {
+    height: calc(100vh - var(--header-height) - 5px); 
+    margin-top: calc(var(--header-height) + 5px); 
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transform: scale(0.95); 
+    transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out; 
+    display: flex; 
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+    padding: 20px 50px; 
+    visibility: hidden; 
+}
+
+.content-slide.active {
+    opacity: 1;
+    transform: scale(1); 
+    visibility: visible;
+}
+
+/* Apply the glitch effect briefly when the slide becomes active */
+.content-slide.active .module-content {
+    animation: subtle-glitch 0.8s ease-out 1; 
+}
+
+/* --- STATIC DIGITAL SCANLINES BACKGROUNDS (CSS Only) --- */
+.dark-bg { 
+    background-color: var(--dark-grey); 
+    /* Digital Scanlines */
+    background-image: repeating-linear-gradient(
+        0deg,
+        rgba(0, 243, 255, 0.05), 
+        rgba(0, 243, 255, 0.05) 1px,
+        transparent 1px,
+        transparent 20px 
+    );
+    background-size: 100% 20px;
+}
+.black-bg { 
+    background-color: var(--deep-black); 
+    /* Digital Scanlines */
+    background-image: repeating-linear-gradient(
+        0deg,
+        rgba(0, 243, 255, 0.03), 
+        rgba(0, 243, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 20px 
+    );
+    background-size: 100% 20px;
+}
+/* --- END STATIC DIGITAL SCANLINES BACKGROUNDS --- */
+
+
+/* --- 4. HERO SLIDE (homepage.html and ending-slide) --- */
+/* Floating Element Animation (Homepage Title) */
+@keyframes pulse-float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+}
+
+.hero {
+    background: url('nanotech_bg.png') no-repeat center center/cover;
+    min-height: 100vh; 
+    padding: 0; 
+    position: relative;
+}
+
+.hero .main-title-container {
+    animation: pulse-float 8s ease-in-out infinite; 
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); 
+    z-index: 1;
+}
+
+.content-box { 
+    position: relative; 
+    z-index: 2; 
+    width: 100%;
+    height: calc(100vh - var(--header-height) - 5px); 
+    margin-top: calc(var(--header-height) + 5px); 
+    
+    display: flex; 
+    align-items: center; 
+    justify-content: flex-start; 
+    padding-left: 100px; 
+}
+
+/* Specific centering for the ENDING slide */
+.ending-slide {
+    height: 100vh;
+    margin-top: 0;
+    display: block; 
+}
+
+.ending-slide .content-box { 
+    height: 100vh;
+    margin-top: 0;
+    justify-content: center;
+    padding-left: 0;
+}
+
+/* Presenter box position */
+.presenter-bottomleft-box {
+    position: fixed; 
+    left: auto; 
+    right: 50px; 
+    bottom: 50px; 
+    z-index: 3;
+    padding: 25px 30px;
+    border: 1px solid var(--neon-cyan);
+    background: rgba(0, 243, 255, 0.08); 
+    border-radius: 5px;
+    width: 250px;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+    
+    /* Apply continuous pulse to the presenter box */
+    animation: neon-pulse 3s ease-in-out infinite; 
+}
+
+.presenter-title {
+    font-size: 0.9rem;
+    color: var(--neon-cyan);
+    margin-bottom: 15px; 
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: left; 
+}
+
+.presenter-list-hero {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start;
+    gap: 10px;               
+}
+
+.presenter-list-hero span {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1.2rem;
+    color: var(--text-white);
+    text-shadow: 0 0 3px rgba(0, 243, 255, 0.5);
+}
+
+.main-title-container { 
+    text-align: left; 
+    max-width: 700px; 
+    width: 100%; 
+}
+
+.sub-header { color: var(--neon-cyan); font-size: 1.2rem; margin-bottom: 10px; }
+
+.main-title {
+    font-size: 4.5rem;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px rgba(0, 243, 255, 0.5); 
+    text-align: left; 
+}
+
+.tagline { font-size: 1.2rem; color: var(--light-grey); margin-bottom: 40px; font-weight: 300; }
+
+.btn-neon {
+    border: 1px solid var(--neon-cyan);
+    padding: 15px 40px;
+    color: var(--neon-cyan);
+    font-weight: bold;
+    font-size: 1rem;
+    background: rgba(0, 243, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    display: inline-block; 
+    transition: all 0.3s;
+    
+    /* Apply continuous pulse to buttons */
+    animation: neon-pulse 3s ease-in-out infinite;
+}
+
+.btn-neon:hover {
+    background: var(--neon-cyan);
+    color: var(--deep-black);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+}
+
+/* Ending Slide specific titles */
+.ending-title {
+    text-align: center;
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 30px rgba(0, 243, 255, 0.8); 
+}
+.ending-subheading { 
+    font-size: 1.8rem; 
+    color: var(--light-grey); 
+    margin-bottom: 40px; 
+    font-weight: 300; 
+    font-family: var(--font-body);
+    text-align: center;
+}
+
+
+/* --- 5. MODULE CONTENT SPECIFIC STYLES (Content Slides) --- */
+
+.module-content {
+    max-width: 900px;
+    max-height: calc(100% - 120px); 
+    margin: auto; 
+    width: 100%; 
+    padding: 30px 40px; 
+    background-color: rgba(0,0,0,0.6);
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.15); 
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+    overflow-y: auto; 
+}
+
+/* Glowing Focus States */
+.module-content li:hover {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 8px var(--neon-cyan);
+    transform: translateX(2px);
+    transition: all 0.2s ease-out;
+}
+.module-content p strong:hover {
+    text-shadow: 0 0 10px var(--neon-cyan);
+    transition: text-shadow 0.2s;
+}
+
+/* H2: Main Section Titles */
+.module-content h2 {
+    color: var(--neon-cyan);
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    font-size: 1.8rem;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid rgba(0, 243, 255, 0.5);
+    padding-bottom: 5px;
+    text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); 
+    box-shadow: 0 2px 10px rgba(0, 243, 255, 0.1);
+    
+    /* Apply continuous pulse to main headers */
+    animation: neon-pulse 3s ease-in-out infinite;
+}
+
+/* H3: Sub-Section Titles (like INTENDED LEARNING OUTCOMES) */
+.module-content h3 {
+    font-size: 1.4rem;
+    color: white;
+    font-family: var(--font-heading);
+    margin-top: 15px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 3px;
+}
+
+/* Subtle divider for separating content facts */
+.neon-segment-divider {
+    border-top: 1px dashed rgba(0, 243, 255, 0.3);
+    margin: 20px auto;
+    width: 80%; 
+}
+
+/* Styling for paragraph/text blocks */
+.module-content p {
+    font-size: 1.1rem;
+    line-height: 1.7; 
+    margin-bottom: 15px;
+    text-align: justify;
+    color: var(--text-white);
+}
+.module-content p strong {
+    color: var(--neon-cyan); 
+}
+
+/* Formatting for lists inside the content (ul and ol) */
+.module-content ul, .module-content ol {
+    list-style-type: none; 
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+.module-content li {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    color: var(--text-white);
+    position: relative;
+    padding-left: 20px;
+    text-indent: -20px;
+}
+
+/* Custom glowing bullet point */
+.module-content li::before {
+    content: "◇"; 
+    color: var(--neon-cyan);
+    font-weight: bold;
+    font-size: 0.8em;
+    position: absolute;
+    left: 0;
+    top: 0;
+    text-shadow: 0 0 5px var(--neon-cyan);
+}
+
+/* Special styling for the LEARNING OUTCOMES list */
+#module-outcomes li::before {
+    content: ">>";
+    color: var(--neon-cyan);
+    text-shadow: 0 0 5px var(--neon-cyan);
+}
+
+/* Infographic/Data Stat Box Style */
+.info-stat-box {
+    background: rgba(0, 243, 255, 0.05);
+    border: 1px solid var(--neon-cyan);
+    padding: 15px 20px;
+    margin: 15px 0;
+    border-radius: 5px;
+    font-family: var(--font-heading);
+    color: var(--neon-cyan);
+    font-size: 1.2rem;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+    text-align: center;
+}
+
+/* Themed Code/Quote Blocks (for historical quotes) */
+.terminal-quote {
+    background: var(--deep-black);
+    border-left: 5px solid var(--neon-cyan);
+    padding: 15px;
+    margin: 20px 0;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1rem;
+    color: var(--neon-cyan);
+    white-space: pre-wrap;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+    position: relative;
+}
+.terminal-quote::before {
+    content: "CMD >";
+    color: var(--light-grey);
+    font-size: 0.9rem;
+    position: absolute;
+    top: 5px;
+    left: 10px;
+}
+
+
+/* Styling for the Next Slide Button */
+.next-slide-btn {
+    margin-top: 20px; 
+    margin-bottom: 20px;
+    align-self: center;
+    border: 1px solid var(--neon-cyan);
+    padding: 12px 30px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.next-slide-btn i {
+    margin-left: 10px;
+}
+
+/* --- MOBILE --- */
+@media(max-width: 992px) {
+    .header-flex {
+        flex-direction: column;
+        text-align: center;
+        height: auto; 
+    }
+    nav ul {
+        margin-top: 15px;
+    }
+    nav ul li {
+        margin: 5px 10px;
+    }
+    
+    .content-slide {
+        height: auto; 
+        padding: 20px 10px;
+        margin-top: 120px; 
+        min-height: calc(100vh - 120px);
+    }
+    
+    .ending-slide {
+        height: 100vh; 
+        margin-top: 0;
+    }
+
+    .module-content {
+        max-height: calc(100vh - 180px); 
+        padding: 20px 10px;
+    }
+
+    .ending-title { font-size: 2.5rem; }
+    .ending-subheading { font-size: 1.2rem; }
+    
+    .content-box {
+        padding-left: 20px;
+        justify-content: center;
+        align-items: center; 
+        text-align: center;
+    }
+
+    .main-title-container {
+        text-align: center;
+    }
+    .main-title { font-size: 3rem; }
+
+    .presenter-bottomleft-box {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        margin: 30px auto;
+        width: calc(100% - 40px);
+        max-width: 300px;
+        align-self: center;
+    }
+}
